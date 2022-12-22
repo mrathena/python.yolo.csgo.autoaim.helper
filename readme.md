@@ -1,18 +1,11 @@
 
 # 说明
 
-> [CSDN Python Apex YOLO V5 6.2 目标检测与自瞄 全过程记录](https://blog.csdn.net/mrathena/article/details/126860226)
-
 因为没有计算机视觉相关方向的专业知识, 所以做出来的东西, 有一定效果, 但是还有很多不足
 
-因为 CSDN 部分规则原因, CSDN 文章将不能再更新, 如果后续代码有优化, 只会在 GitHub 同步
-
 源码说明:
-- apex.py: 主文件, 自瞄逻辑与程序控制都在这里
+- csgo.py: 主文件, 自瞄逻辑与程序控制都在这里
 - toolkit.py: 自行封装的工具, 封装了截图推理等工具
-- apex.new.py: 主文件, 用于测试新想法
-- toolkit2.py: 工具包, 用于测试新想法
-- apex.fov.py: 使用 FOV 的主文件, 已放弃 FOV, 感觉没啥用, 一个倍数完全可以代替
 - weights.*.pt: 训练好的模型权重文件, 大概训练了下, 识别不一定精准
 - logitech.driver.dll: 大佬封装的调用罗技驱动的库文件
 - logitech.test.py: 用于测试罗技驱动安装配置是否正确
@@ -38,12 +31,12 @@
 - Left: 是否预瞄(默认关): 感觉效果不是很好
 - PageDown: 是否仿真(默认关): 仿真时, 水平垂直方向的移动力度会减小, 根据参数 horizontal 和 vertical 来定
 - PageUp: 仿真时是否加随机移动(默认关): 仿真时如果开了加随机值, 则左右会有一定概率和幅度的摇动
-- F11: 左右移动时添加一定的反向便宜(默认开)
+- F11: 左右移动时添加一定的反向便偏移(默认开)
 
 其他说明:
 - 游戏需要设置显示模式为 `无边框窗口`
 - 游戏分辨率和显示器物理分辨率需要一致
-- 游戏可能需要限制帧数, 以便给显卡让出足够算力做目标检测, 比如锁60帧 `+fps_max 60`, 根据自己的情况定
+- 游戏可能需要限制帧数, 以便给显卡让出足够算力做目标检测, 比如锁60帧, 在控制台输入 `fps_max 60`, 根据自己的情况定
 
 # 环境准备
 
@@ -89,20 +82,3 @@
 
 > 钩子函数本身是阻塞的。也就是说钩子函数在执行的过程中，用户正常的键盘/鼠标操作是无法输入的。所以在钩子函数里面必须写成有限的操作（即O(1)时间复杂度的代码），也就是说像背包内配件及枪械识别，还有下文会讲到的鼠标压枪这类时间开销比较大或者持续时间长的操作，都不适合写在钩子函数里面。这也解释了为什么在检测到Tab（打开背包）、鼠标左键按下时，为什么只是改变信号量，然后把这些任务丢给别的进程去做的原因。
 
-# 扩展
-
-## Python Apex 武器自动识别与压枪
-
-> [GitHub python.apex.weapon.auto.recognize.and.suppress](https://github.com/mrathena/python.apex.weapon.auto.recognize.and.suppress)
-> 
-## Python Pubg 武器自动识别与压枪
-
-> [GitHub python.pubg.weapon.auto.recognize.and.suppress](https://github.com/mrathena/python.pubg.weapon.auto.recognize.and.suppress)
-
-# 拓展 通用型人体骨骼检测 与 自瞄, 训练一次, FPS 游戏通用
-
-> [【亦】警惕AI外挂！我写了一个枪枪爆头的视觉AI，又亲手“杀死”了它](https://www.bilibili.com/video/BV1Lq4y1M7E2/)
-
-> [YOLO V7 keypoint 人体关键点检测](https://xugaoxiang.com/2022/07/21/yolov7/)
-
-大多数 FPS 游戏中要检测的目标都为人形, 可以训练一个 通用型人体骨骼检测模型, 在类似游戏中应该有不错的效果
