@@ -38,7 +38,7 @@ randomness = 'randomness'
 init = {
     weights: 'weights.csgo.public.group.967082372.F4E232C07565A97341070431B91CA46B-v5-s-640-4500-2-T.CT.engine',  # 权重文件
     classes: [0, 1],  # 要检测的标签的序号(标签序号从0开始), 多个时如右 [0, 1]
-    confidence: 0.5,  # 置信度, 低于该值的认为是干扰
+    confidence: 0.6,  # 置信度, 低于该值的认为是干扰
     size: 400,  # 截图的尺寸, 屏幕中心 size*size 大小
     radius: 200,  # 瞄准生效半径, 目标瞄点出现在以准星为圆心该值为半径的圆的范围内时才会自动瞄准
     ads: 0.5,  # 移动倍数, 调整方式: 关闭仿真并开启自瞄后, 不断瞄准目标旁边并按住 F 键, 当准星移动稳定且精准快速不振荡时, 就找到了合适的 ADS 值
@@ -316,15 +316,15 @@ def consumer(data, queue):
         aims, img = product
         targets = []
         for index, clazz, conf, sc, gc, sr, gr in aims:
-            _, _, _, height = sr
+            _, _, _, h = sr
             cx, cy = sc
-            targets.append(((cx, cy - (height // 2 - height // (8 if data[head] else 3))), gr))  # 计算身体和头在方框中的大概位置来获得瞄点, 没有采用头标签的方式(感觉效果特别差)
+            targets.append(((cx, cy - (h // 2 - h // (8 if data[head] else 3))), gr))  # 计算身体和头在方框中的大概位置来获得瞄点, 没有采用头标签的方式(感觉效果特别差)
         target = None  # 格式: (sc, gr), sc:屏幕坐标系下的目标所在点(瞄点坐标), gr:截图坐标系下的边框ltwh
         predicted = None
         if len(targets) != 0:
             # 拿到瞄准目标
             # 尽量跟一个目标, 不要来回跳, 目标消失后在原地停顿几个循环, 如目标仍未再次出现, 才认为目标消失, 开始找下一个目标
-            target = follow(targets, None)
+            target = follow(targets, last)
             # 重置上次瞄准的目标
             last = target
             # 解析目标里的信息
@@ -343,6 +343,9 @@ def consumer(data, queue):
                     px2 = px1 + gw
                     py2 = py1 + gh
                     cv2.rectangle(img, (px1, py1), (px2, py2), (0, 256, 0), 2)
+                    differ = predicted[0] - sc[0]
+                    if abs(differ) > 0:
+                        cv2.putText(img, f'{f">" if differ > 0 else "<"}', (px1 - 20, py1), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
         # 检测瞄准开关
         if data[aim] and data[lock]:
             if target:
