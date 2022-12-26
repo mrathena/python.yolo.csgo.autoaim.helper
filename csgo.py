@@ -10,7 +10,6 @@ import pynput
 from win32gui import GetCursorPos, FindWindow, SetWindowPos, GetWindowText, GetForegroundWindow
 from win32con import HWND_TOPMOST, SWP_NOMOVE, SWP_NOSIZE
 import winsound
-from simple_pid import PID  # pip install simple-pid
 
 a = 'a'
 d = 'd'
@@ -23,8 +22,6 @@ show = 'show'
 head = 'head'
 lock = 'lock'
 size = 'size'
-heads = {'head'}
-bodies = {'body', '0'}
 region = 'region'
 center = 'center'
 radius = 'radius'
@@ -59,15 +56,15 @@ init = {
     predict: False,  # 是否预瞄, Left
     emulation: False,  # 是否仿真(减小力度加随机值), PageDown
     randomness: False,  # 仿真时是否随机左右偏移, PageUp
-    ad: True,  # AD 模式开关, F11
+    ad: False,  # AD 模式开关, F11
     a: False,  # A 键状态, 是否被按下
     d: False,  # D 键状态, 是否被按下
 }
 
 
 def game():
-    # return 'Apex Legends' in GetWindowText(GetForegroundWindow())
-    return True
+    return 'Counter-Strike: Global Offensive' in GetWindowText(GetForegroundWindow())
+    # return True
 
 
 def mouse(data):
@@ -142,7 +139,7 @@ def keyboard(data):
 
 def producer(data, queue):
 
-    from toolkit import Detector, Timer
+    from toolkit import Capturer, Detector, Timer
     detector = Detector(data[weights], data[classes], data[confidence])
     winsound.Beep(800, 200)
 
@@ -152,7 +149,9 @@ def producer(data, queue):
             break
         if data[box] or data[aim]:
             begin = time.perf_counter_ns()
-            aims, img = detector.detect(region=data[region], image=data[box], label=True, confidence=True)
+            img = Capturer.grab(win=True, region=data[region], convert=True)
+            aims, img = detector.detect(image=img, show=data[box])
+            aims = detector.convert(aims=aims, region=data[region])
             if data[box]:
                 cv2.putText(img, f'{Timer.cost(time.perf_counter_ns() - begin)}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 1)
             try:
@@ -160,7 +159,7 @@ def producer(data, queue):
             except Full:
                 print(f'Producer: Queue Full')
             except:
-                print('Process Producer Error')
+                print('Producer Error')
 
 
 def consumer(data, queue):
@@ -172,7 +171,9 @@ def consumer(data, queue):
     predictor = Predictor()
 
     try:
-        driver = ctypes.CDLL('logitech.driver.dll')
+        import os
+        root = os.path.abspath(os.path.dirname(__file__))
+        driver = ctypes.CDLL(f'{root}/logitech.driver.dll')
         ok = driver.device_open() == 1
         if not ok:
             print('初始化失败, 未安装罗技驱动')
@@ -309,7 +310,7 @@ def consumer(data, queue):
         except Empty:
             print(f'Consumer: Queue Empty')
         except:
-            print('Process Consumer Error')
+            print('Consumer Error')
         if not product:
             continue
         aims, img = product
@@ -317,7 +318,7 @@ def consumer(data, queue):
         for index, clazz, conf, sc, gc, sr, gr in aims:
             _, _, _, height = sr
             cx, cy = sc
-            targets.append(((cx, cy - (height // 2 - height // (9 if data[head] else 3))), gr))  # 计算身体和头在方框中的大概位置来获得瞄点, 没有采用头标签的方式(感觉效果特别差)
+            targets.append(((cx, cy - (height // 2 - height // (8 if data[head] else 3))), gr))  # 计算身体和头在方框中的大概位置来获得瞄点, 没有采用头标签的方式(感觉效果特别差)
         target = None  # 格式: (sc, gr), sc:屏幕坐标系下的目标所在点(瞄点坐标), gr:截图坐标系下的边框ltwh
         predicted = None
         if len(targets) != 0:
@@ -378,7 +379,7 @@ def consumer(data, queue):
                     # py = int(pidy(ay))
                     px = int(ax)
                     py = int(ay)
-                    print(f'目标位置:{sx},{sy}, 移动像素:{x},{y}, ADS:{ax},{ay}')
+                    # print(f'目标位置:{sx},{sy}, 移动像素:{x},{y}, ADS:{ax},{ay}')
                     # 移动
                     if data[emulation]:
                         mxy(10, px, py)
