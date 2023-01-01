@@ -45,7 +45,7 @@ python export.py --weights weights.csgo.public.group.967082372.F4E232C07565A9734
 
 运行工程, 需要 PyTorch Cuda 环境, 参考下文搭建环境
 
-> [Windows Python PyTorch CUDA 11.7 TensorRT 环境配置](https://blog.csdn.net/mrathena/article/details/128430943)
+> [CSDN Windows Python PyTorch CUDA 11.7 TensorRT 环境配置](https://blog.csdn.net/mrathena/article/details/128430943)
 
 ## 操纵键鼠
 
