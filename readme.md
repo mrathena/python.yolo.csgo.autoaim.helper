@@ -56,21 +56,7 @@ python export.py --weights weights.csgo.public.group.967082372.F4E232C07565A9734
 
 我们不会直接调用罗技驱动, 但是有大佬已经搭过桥了, 有现成的调用驱动的dll, 只是需要安装指定版本的罗技驱动配合才行
 
-### 驱动安装和系统设置
-
-> [百度网盘 罗技键鼠驱动](https://pan.baidu.com/s/1VkE2FQrNEOOkW6tCOLZ-kw?pwd=yh3s)
-
-罗技驱动分 LGS (老) 和 GHub (新), LGS 的话, 需要使用 9.02.65 版本的, GHub 的话, 需要使用 2021.11 之前的, 二者自选其一即可
-
-装好驱动后, 无需重启电脑. 运行 `屏蔽GHUB更新.exe` 防止更新
-
-另外需要确保 控制面板-鼠标-指针选项 中下面两个设置
-- 提高指针精确度 选项去掉, 不然会造成实际移动距离变大
-- 选择指针移动速度 要在正中间, 靠右会导致实际移动距离过大, 靠左会导致指针移动距离过小
-
-运行 `logitech.test.py` 查看效果, 确认安装是否成功
-
-### 代码
+logitech.test.py
 
 大佬封装的 `logitech.driver.dll` 没有文档, 下面是某老哥列出的该库里面的方法, 具体用法参考 `logitech.test.py`
 
